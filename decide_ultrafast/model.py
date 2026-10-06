@@ -104,8 +104,14 @@ def choose(state, goal, history):
             },
             "instructions": {"goal": goal, "operation": operation, "rules": [NEXT_ACTION, TARGET]},
         }
+    # Endpoint is resolved first so the default model follows it: OpenRouter's
+    # Decisions API defaults to Inception's Mercury Decide (free, 32k ctx, same
+    # request/response shape as Jev); TypeSafe's own endpoint keeps `jev-latest`.
+    # TYPESAFE_MODEL overrides either default.
+    endpoint = os.environ.get("TYPESAFE_BASE_URL", "https://api.typesafe.ai/v1/systemone")
+    default_model = "inception/mercury-decide:free" if "openrouter.ai" in endpoint else "jev-latest"
     body = {
-        "model": os.environ.get("TYPESAFE_MODEL", "jev-latest"),
+        "model": os.environ.get("TYPESAFE_MODEL") or default_model,
         "state": {
             "page": {k: state[k] for k in ("url", "title", "text")},
             "elements": elements,
@@ -116,7 +122,10 @@ def choose(state, goal, history):
         "questions": questions,
     }
     started = time.perf_counter()
-    result = post_json("https://api.typesafe.ai/v1/systemone", os.environ["TYPESAFE_API_KEY"], body)
+    # Jev is also served through OpenRouter's Decisions API, which takes the same
+    # {model, state, questions} body and returns the same {answers}. Set
+    # TYPESAFE_BASE_URL to switch endpoints; the default stays TypeSafe's own.
+    result = post_json(endpoint, os.environ["TYPESAFE_API_KEY"], body)
     operation_answer = validate_choice(result["answers"].get("operation", {}), operations)
     operation = operation_answer["choice"]
     target = None

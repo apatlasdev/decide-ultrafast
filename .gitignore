@@ -8,3 +8,6 @@ artifacts/
 *.egg-info/
 
 dist/
+*.bak*
+server.log
+*.orig

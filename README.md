@@ -1,6 +1,8 @@
-<img src="docs/banner.svg" alt="Jev Ultrafast · Browser Use × TypeSafe" width="100%" />
+<img src="docs/banner.svg" alt="Decide Ultrafast · Browser Use × TypeSafe" width="100%" />
 
-# Jev Ultrafast ⚡
+# Decide Ultrafast ⚡
+
+> **Fork notice.** This is a fork of [browser-use/jev-ultrafast](https://github.com/browser-use/jev-ultrafast) (MIT, see `LICENSE`). Changes: the decision model is now Inception's Mercury Decide through OpenRouter's Decisions API (`inception/mercury-decide:free`; TypeSafe's Jev still works), the package is renamed `decide_ultrafast`, and `decide-browse.ps1` is a Windows launcher. All credit for the original design and code goes to the Browser Use team.
 
 **A browser agent with a dynamic, indexed action space.**
 
@@ -10,7 +12,7 @@ Give it one goal. [TypeSafe's Jev](https://docs.typesafe.ai/introduction) picks 
 
 <a href="docs/demo.mp4"><img src="docs/demo.gif" alt="A real Google Flights search at 1× speed, with generated city names and dynamic operation/target decisions" width="100%" /></a>
 
-[Watch the MP4](docs/demo.mp4) · [Measurements](docs/performance.md) · [Read the loop](jev_ultrafast/agent.py)
+[Watch the MP4](docs/demo.mp4) · [Measurements](docs/performance.md) · [Read the loop](decide_ultrafast/agent.py)
 
 ## The action space
 
@@ -49,8 +51,8 @@ There are no site-specific action scripts or prepared field strings in the polic
 ## Try it
 
 ```bash
-git clone https://github.com/browser-use/jev-ultrafast.git
-cd jev-ultrafast
+git clone https://github.com/browser-use/decide-ultrafast.git
+cd decide-ultrafast
 uv sync
 cp .env.example .env
 # Add TYPESAFE_API_KEY and TEXT_MODEL_API_KEY.
@@ -66,7 +68,7 @@ Chrome connects through [Browser Harness](https://github.com/browser-use/browser
 ## Use the library
 
 ```python
-from jev_ultrafast import Agent
+from decide_ultrafast import Agent
 
 with Agent(
     "https://www.google.com/travel/flights?hl=en",
@@ -104,12 +106,12 @@ Every executed target is resolved from an observed node. The executor rechecks p
 
 | File | Job |
 | --- | --- |
-| [agent.py](jev_ultrafast/agent.py) | The complete loop and text-helper handoff |
-| [snapshot.js](jev_ultrafast/snapshot.js) | Atomic DOM snapshot, indexed controls, freshness guards |
-| [browser.py](jev_ultrafast/browser.py) | Browser connection, current geometry, execution |
-| [model.py](jev_ultrafast/model.py) | Dynamic operation/target heads and text generation |
-| [questions.py](jev_ultrafast/questions.py) | Model instructions |
-| [demo.py](jev_ultrafast/demo.py) | Local inspector |
+| [agent.py](decide_ultrafast/agent.py) | The complete loop and text-helper handoff |
+| [snapshot.js](decide_ultrafast/snapshot.js) | Atomic DOM snapshot, indexed controls, freshness guards |
+| [browser.py](decide_ultrafast/browser.py) | Browser connection, current geometry, execution |
+| [model.py](decide_ultrafast/model.py) | Dynamic operation/target heads and text generation |
+| [questions.py](decide_ultrafast/questions.py) | Model instructions |
+| [demo.py](decide_ultrafast/demo.py) | Local inspector |
 
 ## Evidence and limits
 
@@ -126,8 +128,8 @@ A `DONE` choice still requires independent outcome verification. The DOM reader 
 ```bash
 uv run ruff check .
 uv run pytest
-node --check jev_ultrafast/static/app.js
-node --check jev_ultrafast/snapshot.js
+node --check decide_ultrafast/static/app.js
+node --check decide_ultrafast/snapshot.js
 uv build
 ```
 

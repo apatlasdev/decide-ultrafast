@@ -117,6 +117,16 @@ def fingerprint(state):
     return hashlib.sha256(json.dumps(content, sort_keys=True).encode()).hexdigest()
 
 
+def _needs_keystrokes(evaluate, node):
+    """True for contenteditable composers, which mishandle a bulk insertText."""
+    try:
+        return bool(evaluate(
+            "(n => { const e = window.__jevFast?.nodes.get(n);"
+            " return !!(e && e.isContentEditable); })(" + str(int(node)) + ")"
+        ))
+    except Exception:
+        return False
+
 def browser_operation(request):
     operation = request["operation"]
     session = request["session"]
@@ -182,7 +192,18 @@ def browser_operation(request):
                         code="KeyA",
                         modifiers=4 if sys.platform == "darwin" else 2,
                     )
-                    call("Input.insertText", text=request["text"])
+                    # A single insertText is a bulk paste. Rich-text composers that
+                    # build their own model from input events (Discord's, Slack's,
+                    # Notion's) interleave it with existing content and corrupt it,
+                    # and per-keystroke UI like slash-command autocomplete never
+                    # fires at all. Send it a character at a time so each one
+                    # produces its own input event.
+                    text = request["text"]
+                    if len(text) > 1 and _needs_keystrokes(evaluate, action["node"]):
+                        for ch in text:
+                            call("Input.insertText", text=ch)
+                    else:
+                        call("Input.insertText", text=text)
         return {"executed": action["id"]}
 
     info = evaluate(READ_STATE)
